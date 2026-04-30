@@ -33,7 +33,7 @@ export const SCRIPTS = {
   ebayUpdateStock:     'https://script.google.com/macros/s/AKfycbxtTmfX02hXKlAnGu_U5YZs3GlPcJqdmdPMc2oW_Cdhs0al1Ze7WlweKKPHBpqMHYiu/exec',
 
   // Suppliers
-  rubiesDeerfieldSync: 'https://script.google.com/macros/s/AKfycbwgZyc4--EUhezKK2tlsBXGBTrx_qhsBHA0nV78q4nA2v_RrAcOPtHoaODPJUwf2J8u/exec',
+  rubiesSync: 'https://script.google.com/macros/s/AKfycbwgZyc4--EUhezKK2tlsBXGBTrx_qhsBHA0nV78q4nA2v_RrAcOPtHoaODPJUwf2J8u/exec',
 }
 
 // Default fee rates (can be overridden in margin calc UI)
