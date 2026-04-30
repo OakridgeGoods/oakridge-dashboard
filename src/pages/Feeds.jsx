@@ -12,7 +12,7 @@ const FEED_DEFS = [
   { id: 'pushTrackingToAmazonFromSheet', label: 'Push Tracking → Amazon',   desc: 'Push all saved tracking numbers from AllOrders back to Amazon SP-API.',                     icon: '📤', category: 'Tracking',  scriptKey: 'pushTrackingAmazon' },
   { id: 'ebayUpdatePriceOnly',        label: 'Update eBay Prices',          desc: 'Push updated prices from Masterfeed to eBay listings via API.',                             icon: '💲', category: 'Catalogue', scriptKey: 'ebayUpdatePrice'    },
   { id: 'ebayUpdateStockByItemID',    label: 'Update eBay Stock',           desc: 'Push current stock quantities from Masterfeed to eBay listings via API.',                   icon: '📦', category: 'Catalogue', scriptKey: 'ebayUpdateStock'    },
-  { id: 'syncRubiesStock',            label: 'Rubies Deerfield Stock Sync', desc: 'Check Rubies Deerfield stock levels and update eBay listings accordingly.',                 icon: '🏭', category: 'Suppliers', scriptKey: null, soon: true       },
+  { id: 'syncRubiesStock',            label: 'Rubies Deerfield Stock Sync', desc: 'Check Rubies Deerfield stock levels and update eBay listings accordingly.',                 icon: '🏭', category: 'Suppliers', scriptKey: 'rubiesSync'       },
 ]
 
 const CATEGORIES = ['Download', 'Compile', 'Tracking', 'Catalogue', 'Suppliers']
