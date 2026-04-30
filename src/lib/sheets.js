@@ -106,13 +106,13 @@ function colIndexToLetter(index) {
 }
 
 // Trigger an Apps Script web app endpoint
+// Uses GET + access_token param to avoid CORS preflight issues with GAS
 export async function runScript(url, payload = {}) {
   if (!url) throw new Error('Script URL not configured. Add it to src/lib/config.js')
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  })
+  const params = new URLSearchParams(payload)
+  if (_token) params.set('access_token', _token)
+  const sep = url.includes('?') ? '&' : '?'
+  const res = await fetch(`${url}${sep}${params}`, { redirect: 'follow' })
   if (!res.ok) throw new Error(`Script error: ${res.status}`)
   return res.json()
 }
