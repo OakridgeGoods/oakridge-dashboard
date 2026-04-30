@@ -17,19 +17,19 @@ export const SHEET_TABS = {
 
 export const SCRIPTS = {
   // Download
-  pullEbayOrders:      'https://script.google.com/macros/s/AKfycbxLwZjShVErXHJdyX060gbjcZ_fmU2c7GNO_rp1YjdZwYdE4MWA8BbBvkP4l_K0u7d2/exec',
-  pullAmazonOrders:    'https://script.google.com/macros/s/AKfycbxEBb39tWG3hMZwU-QM6q4RXZl0wDaiTJNeLCOT6nk0CdxEZjO-bTuhbAq5TPgxy9wJ8w/exec',
+  pullEbayOrders:      'https://script.google.com/macros/s/AKfycbwM2EKk8JIJ1CalFDbSbUoFpyqE58VreZUnqaRgf8RL4X5au0l5J44MxpZlw02r7z9P/exec',
+  pullAmazonOrders:    'https://script.google.com/macros/s/AKfycbwcI9MSH08YVJh0kV05s-Q7rt7SbUmg5vZqRi48u006I2tjbCDF5H9pKbWqfnNPARLHdg/exec',
   // Compile
-  compileOrders:       'https://script.google.com/macros/s/AKfycbyP09Udc50Kplni2d3jT5VObj4xo9GOq2p-w8eikTjNFPcNv62qGCf2SNja5LpJ61DDeg/exec',
-  compileAmazonOrders: '',
+  compileOrders:       'https://script.google.com/macros/s/AKfycbzxlYTeVsfW0MldG29uc0NWGHwjucmqSDY5JVIUmlGynDtvEVPslwqnxzxlpSLNg_Ja-g/exec',
+  compileAmazonOrders: 'https://script.google.com/macros/s/AKfycby5uLlST6ytvhUCjBONLMjJWH0lIKEWQUvfMfjDA3M3t_TCeQekwbUa7gqViPwBPvX95Q/exec',
   // Tracking
-  pushTrackingEbay:    '',
-  pushTrackingAmazon:  '',
+  pushTrackingEbay:    'https://script.google.com/macros/s/AKfycbzrd39OfmQ-EmEjlxx8H8RtTzMbJqC9uUf8zmnXQjt5BeAlLUWa7Ayz7ido0RZP8rTKaQ/exec',
+  pushTrackingAmazon:  'https://script.google.com/macros/s/AKfycbwFjD4kBkmWO_PttDiIazBW-21ifqlLVLU-XfR8DshhjSoGmIwY-w1CvZNkAljdgmyxTg/exec',
   // Catalogue
-  ebayUpdatePrice:     '',
-  ebayUpdateStock:     'https://script.google.com/macros/s/AKfycbz2Th5Ygq71vYiPf4trR81mXPRoVPSbLG8SYcoy3u7OKCEt-XFCEcI3oGjRTBYZTdFw/exec',
+  ebayUpdatePrice:     'https://script.google.com/macros/s/AKfycbxjwK_JqZ8b2jAuEh45LqecIEbW3sf-0yh2tAg0KawUnjxCeKsx2IkTpdAOdkT2Sypx/exec',
+  ebayUpdateStock:     'https://script.google.com/macros/s/AKfycbxtTmfX02hXKlAnGu_U5YZs3GlPcJqdmdPMc2oW_Cdhs0al1Ze7WlweKKPHBpqMHYiu/exec',
   // Suppliers
-  rubiesSync:          '',
+  rubiesSync:          'https://script.google.com/macros/s/AKfycbwgZyc4--EUhezKK2tlsBXGBTrx_qhsBHA0nV78q4nA2v_RrAcOPtHoaODPJUwf2J8u/exec',
 }
 
 // Default fee rates (can be overridden in margin calc UI)
