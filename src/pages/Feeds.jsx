@@ -32,9 +32,9 @@ export default function FeedsPage() {
     setStatus(s => ({ ...s, [feed.id]: 'running' }))
     addLog(feed.label, 'info', 'Running…')
     try {
-      const res = await runScript(url)
+      await runScript(url)
       setStatus(s => ({ ...s, [feed.id]: 'done' }))
-      addLog(feed.label, 'success', res.message || 'Complete')
+      addLog(feed.label, 'success', 'Request sent successfully')
       setTimeout(() => setStatus(s => ({ ...s, [feed.id]: 'idle' })), 3000)
     } catch (e) {
       setStatus(s => ({ ...s, [feed.id]: 'error' }))
@@ -99,18 +99,6 @@ export default function FeedsPage() {
           </div>
         )
       })}
-
-      {/* Config reminder */}
-      <div style={{ background: 'var(--surface)', border: '0.5px solid var(--border)', borderRadius: 10, padding: '14px 18px', marginBottom: 24 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>To enable a button</div>
-        <div style={{ fontSize: 12, color: 'var(--text-2)', lineHeight: 1.8 }}>
-          1. Open the Google Sheet → Extensions → Apps Script<br />
-          2. Deploy the function as a Web App (Execute as: Me, Access: Anyone with Google account)<br />
-          3. Copy the deployment URL (looks like <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>https://script.google.com/macros/s/ABC.../exec</span>)<br />
-          4. Paste it into <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>src/lib/config.js</span> under the matching key in the SCRIPTS object<br />
-          5. Commit to GitHub — Cloudflare auto-deploys
-        </div>
-      </div>
 
       {logs.length > 0 && (
         <div>
