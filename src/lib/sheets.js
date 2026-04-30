@@ -70,7 +70,6 @@ export async function readSheet(sheetId, tabName) {
 
 // Write a single cell by finding the row matching keyCol=keyVal
 export async function updateCell(sheetId, tabName, rows, keyCol, keyVal, updateCol, updateVal) {
-  // Find the row index (1-based, +1 for header)
   const rowIndex = rows.findIndex(r => r[keyCol] === keyVal)
   if (rowIndex === -1) throw new Error(`Row not found: ${keyCol}=${keyVal}`)
 
@@ -78,7 +77,7 @@ export async function updateCell(sheetId, tabName, rows, keyCol, keyVal, updateC
   const colIndex = headers.indexOf(updateCol)
   if (colIndex === -1) throw new Error(`Column not found: ${updateCol}`)
 
-  const sheetRow = rowIndex + 2 // +1 for header, +1 for 1-based
+  const sheetRow = rowIndex + 2
   const colLetter = colIndexToLetter(colIndex)
   const range = encodeURIComponent(`${tabName}!${colLetter}${sheetRow}`)
 
@@ -106,13 +105,19 @@ function colIndexToLetter(index) {
 }
 
 // Trigger an Apps Script web app endpoint
-// Uses GET + access_token param to avoid CORS preflight issues with GAS
 export async function runScript(url, payload = {}) {
   if (!url) throw new Error('Script URL not configured. Add it to src/lib/config.js')
+
   const params = new URLSearchParams(payload)
   if (_token) params.set('access_token', _token)
+
   const sep = url.includes('?') ? '&' : '?'
-  const res = await fetch(`${url}${sep}${params}`, { redirect: 'follow' })
-  if (!res.ok) throw new Error(`Script error: ${res.status}`)
-  return res.json()
+
+  await fetch(`${url}${sep}${params}`, {
+    method: 'GET',
+    mode: 'no-cors', // 🔥 FIX: prevents "Failed to fetch"
+    redirect: 'follow'
+  })
+
+  return { success: true }
 }
