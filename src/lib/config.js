@@ -19,12 +19,20 @@ export const SHEET_TABS = {
 // Apps Script web app deployment URLs
 // Add these after deploying each script as a web app in Apps Script
 export const SCRIPTS = {
-  pullEbayOrders:       '', // paste deployed URL
-  pullAmazonOrders:     '', // paste deployed URL
-  compileOrders:        '', // paste deployed URL
-  pushTrackingEbay:     '', // paste deployed URL
-  pushTrackingAmazon:   '', // paste deployed URL
-  generateEbayRevise:   '', // paste deployed URL
+  // Download
+  pullEbayOrders:       '', // syncEbayOrdersToSheet
+  pullAmazonOrders:     '', // spSyncOrdersFlat
+  // Compile
+  compileOrders:        '', // pullEbayIntoAllOrders
+  compileAmazonOrders:  '', // pullAmazonIntoAllOrders
+  // Tracking
+  pushTrackingEbay:     '', // pushTrackingToEbayFromSheet
+  pushTrackingAmazon:   '', // pushTrackingToAmazonFromSheet
+  // Catalogue
+  ebayUpdatePrice:      '', // ebayUpdatePriceOnly
+  ebayUpdateStock:      '', // ebayUpdateStockByItemID
+  // Suppliers
+  rubiesSync:           '', // syncRubiesStock (not built yet)
 }
 
 // eBay/Amazon fee rates for margin calc
