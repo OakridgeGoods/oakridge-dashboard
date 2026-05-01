@@ -6,6 +6,7 @@ import OrdersPage from './pages/Orders'
 import CataloguePage from './pages/Catalogue'
 import FeedsPage from './pages/Feeds'
 import MarginsPage from './pages/Margins'
+import LogsPage from './pages/Logs'
 
 // Google OAuth client ID — replace with yours from Google Cloud Console
 // Scopes needed: https://www.googleapis.com/auth/spreadsheets
@@ -95,6 +96,7 @@ export default function App() {
           {page === 'catalogue' && <CataloguePage token={token} />}
           {page === 'feeds'     && <FeedsPage />}
           {page === 'margins'   && <MarginsPage />}
+          {page === 'logs'      && <LogsPage      token={token} />}
         </main>
       </div>
     </div>
