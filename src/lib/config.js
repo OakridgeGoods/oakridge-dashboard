@@ -1,11 +1,12 @@
 // Oakridge Goods — Google Sheets config
 
 export const SHEETS = {
-  compiledOrders: '1Du92zYghW6T5rgtsFpQTC4WnBi_zAwkK_xkYOUaTCGk',
-  amazonOrders:   '1wIEHl3KHWTTezAuBhrUhIWlNSiVIEVoDr9_fbuQr--E',
-  datafeeds:      '1V9JKJdjZ4EGwz927_aEagKKTNpzy-cHLvqFJnJj3aws',
-  amazonDatafeed: '1L79NQ37VJegctJsZVW1OJb-pW7A1h2OH9kDbP01A1e4',
-  masterLogs:     '1daSpxstCYHaKnx_-7BtSSzqdia56CoHDVsmEDeeHnPI',
+  compiledOrders:      '1Du92zYghW6T5rgtsFpQTC4WnBi_zAwkK_xkYOUaTCGk',
+  amazonOrders:        '1wIEHl3KHWTTezAuBhrUhIWlNSiVIEVoDr9_fbuQr--E',
+  datafeeds:           '1V9JKJdjZ4EGwz927_aEagKKTNpzy-cHLvqFJnJj3aws',
+  amazonDatafeed:      '1L79NQ37VJegctJsZVW1OJb-pW7A1h2OH9kDbP01A1e4',
+  masterLogs:          '1daSpxstCYHaKnx_-7BtSSzqdia56CoHDVsmEDeeHnPI',
+  competitorAnalysis:  '1OZEZccrZYDE5BvDmk2dzUsaSrXimE9HNITmuRIMB6Ss',
 }
 
 // gid for the master log tab (from the URL you shared) — used to resolve tab name at runtime
