@@ -1,17 +1,9 @@
 import { useState, useEffect } from 'react'
 import { readSheet } from '../lib/sheets'
-import { SHEETS, SHEET_TABS, FEES } from '../lib/config'
+import { SHEETS, SHEET_TABS } from '../lib/config'
 import { Badge, Btn, Table, TR, TD, Mono, PageHeader, Spinner, EmptyState } from '../components/UI'
 
 const WH_FILTERS = ['All', 'Own stock', 'Dropship']
-
-function calcMarginPct(p) {
-  const cost = parseFloat(p['costPrice (ex GST)'] || 0)
-  const sell = parseFloat(p['eBay Sell Price (Inc GST)'] || 0)
-  if (!sell || !cost) return null
-  const sellEx = sell / 1.1
-  return ((sellEx - cost - sellEx * FEES.ebay) / sellEx * 100).toFixed(0)
-}
 
 export default function CataloguePage({ token }) {
   const [products, setProducts] = useState([])
@@ -81,9 +73,8 @@ export default function CataloguePage({ token }) {
 
         <div style={{ background: 'var(--surface)', border: '0.5px solid var(--border)', borderRadius: 12, overflow: 'hidden', flex: 1, overflowY: 'auto' }}>
           {loading ? <Spinner /> : filtered.length === 0 ? <EmptyState message="No products found" /> : (
-            <Table headers={['SKU', 'Title', 'Brand', 'Cost (ex GST)', 'eBay price', 'Amazon price', 'Margin', 'Stock', 'WH', 'eBay', 'AMZ']}>
+            <Table headers={['SKU', 'Title', 'Brand', 'Cost (ex GST)', 'eBay price', 'Amazon price', 'Stock', 'WH', 'eBay', 'AMZ']}>
               {filtered.map(p => {
-                const margin = calcMarginPct(p)
                 const wh = p.warehouse === '1' ? 'Own' : 'DS'
                 const isSelected = selected?.SKU === p.SKU
                 return (
@@ -98,11 +89,6 @@ export default function CataloguePage({ token }) {
                     <TD><Mono>${parseFloat(p['costPrice (ex GST)'] || 0).toFixed(2)}</Mono></TD>
                     <TD><Mono>${parseFloat(p['eBay Sell Price (Inc GST)'] || 0).toFixed(2)}</Mono></TD>
                     <TD><Mono>${parseFloat(p['Amazon Sell Price (Inc GST)'] || 0).toFixed(2)}</Mono></TD>
-                    <TD>
-                      {margin !== null && (
-                        <Badge type={parseInt(margin) >= 40 ? 'success' : 'warning'}>{margin}%</Badge>
-                      )}
-                    </TD>
                     <TD><Mono>{p.stockQty || 0}</Mono></TD>
                     <TD>
                       <span style={{
