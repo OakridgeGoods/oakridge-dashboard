@@ -5,6 +5,7 @@ export const SHEETS = {
   amazonOrders:   '1wIEHl3KHWTTezAuBhrUhIWlNSiVIEVoDr9_fbuQr--E',
   datafeeds:      '1V9JKJdjZ4EGwz927_aEagKKTNpzy-cHLvqFJnJj3aws',
   amazonDatafeed: '1L79NQ37VJegctJsZVW1OJb-pW7A1h2OH9kDbP01A1e4',
+  masterLogs:     '1daSpxstCYHaKnx_-7BtSSzqdia56CoHDVsmEDeeHnPI',
 }
 
 export const SHEET_TABS = {
@@ -13,6 +14,7 @@ export const SHEET_TABS = {
   log:        'log',
   masterfeed: 'Masterfeed',
   ebayRevise: 'eBay Revise',
+  masterLogs: 'Logs',
 }
 
 export const SCRIPTS = {
