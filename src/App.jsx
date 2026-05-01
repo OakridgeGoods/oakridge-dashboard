@@ -7,6 +7,7 @@ import CataloguePage from './pages/Catalogue'
 import FeedsPage from './pages/Feeds'
 import MarginsPage from './pages/Margins'
 import LogsPage from './pages/Logs'
+import CompetitorPage from './pages/Competitor'
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID_HERE'
 const SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
@@ -33,7 +34,7 @@ export default function App() {
         setToken(resp.access_token)
         setTokenState(resp.access_token)
         fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-          headers: { Authorization: `Bearer ${resp.access_token}` }
+          headers: { Authorization:  }
         }).then(r => r.json()).then(info => setUser(info))
       },
     })
@@ -86,11 +87,12 @@ export default function App() {
         </div>
 
         <main style={{ flex: 1, padding: '24px 28px', overflowY: 'auto' }}>
-          {page === 'orders'    && <OrdersPage    token={token} />}
-          {page === 'catalogue' && <CataloguePage token={token} />}
-          {page === 'feeds'     && <FeedsPage     token={token} />}
-          {page === 'margins'   && <MarginsPage />}
-          {page === 'logs'      && <LogsPage      token={token} />}
+          {page === 'orders'     && <OrdersPage     token={token} />}
+          {page === 'catalogue'  && <CataloguePage  token={token} />}
+          {page === 'feeds'      && <FeedsPage       token={token} />}
+          {page === 'margins'    && <MarginsPage />}
+          {page === 'logs'       && <LogsPage        token={token} />}
+          {page === 'competitor' && <CompetitorPage  token={token} />}
         </main>
       </div>
     </div>
