@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react'
-import { readSheet } from '../lib/sheets'
-import { SHEETS, SHEET_TABS } from '../lib/config'
+import { useState, useEffect, useCallback } from 'react'
+import { SHEETS, MASTER_LOG_GID } from '../lib/config'
+import { getToken } from '../lib/sheets'
 import { Badge, Btn, Table, TR, TD, Mono, PageHeader, Spinner, EmptyState } from '../components/UI'
+
+const SHEETS_API = 'https://sheets.googleapis.com/v4/spreadsheets'
 
 const DATE_PRESETS = [
   { label: 'Last Hour',   hours: 1 },
@@ -21,32 +23,60 @@ function statusBadgeType(status) {
 }
 
 export default function LogsPage({ token }) {
-  const [logs, setLogs]               = useState([])
-  const [loading, setLoading]         = useState(true)
-  const [error, setError]             = useState(null)
-  const [preset, setPreset]           = useState(DATE_PRESETS.find(p => p.isDefault))
-  const [scriptFilter, setScriptFilter] = useState('All')
-  const [statusFilter, setStatusFilter] = useState('All')
-  const [search, setSearch]           = useState('')
+  const [logs, setLogs]                   = useState([])
+  const [loading, setLoading]             = useState(true)
+  const [error, setError]                 = useState(null)
+  const [preset, setPreset]               = useState(DATE_PRESETS.find(p => p.isDefault))
+  const [scriptFilter, setScriptFilter]   = useState('All')
+  const [statusFilter, setStatusFilter]   = useState('All')
+  const [search, setSearch]               = useState('')
+  const [resolvedTab, setResolvedTab]     = useState(null)
 
-  useEffect(() => { if (token) load() }, [token])
-
-  async function load() {
+  const load = useCallback(async () => {
+    if (!getToken()) return
     setLoading(true)
     setError(null)
     try {
-      const rows = await readSheet(SHEETS.masterLogs, SHEET_TABS.masterLogs)
-      // Reverse so newest is first (logs are appended oldest→newest in the sheet)
-      setLogs([...rows].reverse())
+      // Resolve tab name from gid at runtime — avoids hardcoding a name that could be wrong
+      let tabName = resolvedTab
+      if (!tabName) {
+        const meta = await fetch(`${SHEETS_API}/${SHEETS.masterLogs}`, {
+          headers: { Authorization: `Bearer ${getToken()}` }
+        }).then(r => r.json())
+        if (meta.error) throw new Error(`Spreadsheet error: ${meta.error.message}`)
+        const sheet = meta.sheets?.find(s => s.properties.sheetId === MASTER_LOG_GID)
+        if (!sheet) throw new Error(`Tab with gid ${MASTER_LOG_GID} not found. Check MASTER_LOG_GID in config.js.`)
+        tabName = sheet.properties.title
+        setResolvedTab(tabName)
+      }
+
+      const range = encodeURIComponent(`${tabName}!A:F`)
+      const data  = await fetch(`${SHEETS_API}/${SHEETS.masterLogs}/values/${range}`, {
+        headers: { Authorization: `Bearer ${getToken()}` }
+      }).then(r => r.json())
+
+      if (data.error) throw new Error(data.error.message)
+      const values = data.values || []
+      if (values.length < 2) { setLogs([]); return }
+      const [headers, ...rows] = values
+      const entries = rows
+        .filter(r => r.some(c => c !== ''))
+        .map(row => {
+          const obj = {}
+          headers.forEach((h, i) => { obj[h] = row[i] ?? '' })
+          return obj
+        })
+      setLogs(entries.reverse())   // newest first
     } catch (e) {
       setError(e.message)
     } finally {
       setLoading(false)
     }
-  }
+  }, [resolvedTab])
 
-  const cutoff = new Date(Date.now() - preset.hours * 60 * 60 * 1000)
+  useEffect(() => { if (token) load() }, [token])
 
+  const cutoff   = new Date(Date.now() - preset.hours * 60 * 60 * 1000)
   const scripts  = ['All', ...Array.from(new Set(logs.map(l => l.Script).filter(Boolean)))]
   const statuses = ['All', ...Array.from(new Set(logs.map(l => l.Status).filter(Boolean)))]
 
@@ -62,9 +92,7 @@ export default function LogsPage({ token }) {
     return true
   })
 
-  // 20 most recent entries from the full log (not filtered) for the sidebar
-  const recent = logs.slice(0, 20)
-
+  const recent   = logs.slice(0, 20)
   const errCount = filtered.filter(l => statusBadgeType(l.Status) === 'danger').length
 
   const selectStyle = {
@@ -79,6 +107,7 @@ export default function LogsPage({ token }) {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         <PageHeader title="Script Logs">
           <Btn onClick={load} size="sm">↻ Refresh</Btn>
+          {resolvedTab && <span style={{ fontSize: 11, color: 'var(--text-3)' }}>tab: {resolvedTab}</span>}
           {errCount > 0 && (
             <span style={{ fontSize: 12, background: '#fde8e8', color: '#8b1a1a', borderRadius: 6, padding: '4px 10px', border: '0.5px solid #fca5a5' }}>
               {errCount} error{errCount !== 1 ? 's' : ''} in view
@@ -124,11 +153,6 @@ export default function LogsPage({ token }) {
         {error && (
           <div style={{ background: '#fde8e8', border: '0.5px solid #fca5a5', borderRadius: 8, padding: '10px 14px', marginBottom: 14, color: '#8b1a1a', fontSize: 13 }}>
             ⚠ {error}
-            {error.includes('404') && (
-              <span style={{ display: 'block', marginTop: 4, fontSize: 11 }}>
-                Check that the tab name in config.js (SHEET_TABS.masterLogs) matches your sheet.
-              </span>
-            )}
           </div>
         )}
 
@@ -175,11 +199,9 @@ export default function LogsPage({ token }) {
                   {l.Script || '—'}
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--text-2)' }}>{l.Function || ''}</div>
-                {l.SKU && (
-                  <div style={{ fontSize: 10, color: 'var(--text-3)', fontFamily: 'var(--font-mono)', marginTop: 3 }}>{l.SKU}</div>
-                )}
+                {l.SKU && <div style={{ fontSize: 10, color: 'var(--text-3)', fontFamily: 'var(--font-mono)', marginTop: 2 }}>{l.SKU}</div>}
                 {l.Details && (
-                  <div style={{ fontSize: 10.5, color: 'var(--text-3)', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={l.Details}>
+                  <div style={{ fontSize: 10.5, color: 'var(--text-3)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={l.Details}>
                     {l.Details}
                   </div>
                 )}
