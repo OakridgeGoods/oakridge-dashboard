@@ -8,34 +8,36 @@ export const SHEETS = {
   masterLogs:     '1daSpxstCYHaKnx_-7BtSSzqdia56CoHDVsmEDeeHnPI',
 }
 
+// gid for the master log tab (from the URL you shared) — used to resolve tab name at runtime
+export const MASTER_LOG_GID = 1081395476
+
 export const SHEET_TABS = {
   allOrders:  'allorders',
   openOrders: 'openorders',
   log:        'log',
   masterfeed: 'Masterfeed',
   ebayRevise: 'eBay Revise',
-  masterLogs: 'Logs',
 }
 
 export const SCRIPTS = {
-  // Download
-  pullEbayOrders:      'https://script.google.com/macros/s/AKfycbwDuDHAu8zM2YwEYphZ8z3MLD6xhKxSHxzeBrfqxVCDG4XXBXctmXDESNx19Pd4cqot/exec',
-  pullAmazonOrders:    'https://script.google.com/macros/s/AKfycbwcI9MSH08YVJh0kV05s-Q7rt7SbUmg5vZqRi48u006I2tjbCDF5H9pKbWqfnNPARLHdg/exec',
+  // Download — dedicated endpoints, no action param needed
+  pullEbayOrders:      'https://script.google.com/macros/s/AKfycbyk4kINhsUVMRK-BBbj4jGA7Rt03rvbgyps-B37h6OUySZdtv2DTkXHv4Y1UlCQ7jue/exec',
+  pullAmazonOrders:    'https://script.google.com/macros/s/AKfycbz27w0tTmM5RRm-FqYEdxrA6uJ0Q7-d1ndiiBxEPXi6xBOqbDq4sR3lqX3ljS-kamWL5w/exec',
 
-  // Compile
-  compileOrders:       'https://script.google.com/macros/s/AKfycbzxlYTeVsfW0MldG29uc0NWGHwjucmqSDY5JVIUmlGynDtvEVPslwqnxzxlpSLNg_Ja-g/exec',
-  compileAmazonOrders: 'https://script.google.com/macros/s/AKfycby5uLlST6ytvhUCjBONLMjJWH0lIKEWQUvfMfjDA3M3t_TCeQekwbUa7gqViPwBPvX95Q/exec',
+  // Compile — AllOrders ingest endpoint, routed by action param
+  compileOrders:       'https://script.google.com/macros/s/AKfycbwnbc5LGqTbWV34hR-YIWAtJhSs6ggj0rIKVHu9rvBDwHRiUl-lbqjRD6Fuoo_6DC4oRg/exec?action=pullEbay',
+  compileAmazonOrders: 'https://script.google.com/macros/s/AKfycbwnbc5LGqTbWV34hR-YIWAtJhSs6ggj0rIKVHu9rvBDwHRiUl-lbqjRD6Fuoo_6DC4oRg/exec?action=pullAmazon',
 
-  // Tracking
-  pushTrackingEbay:    'https://script.google.com/macros/s/AKfycbzrd39OfmQ-EmEjlxx8H8RtTzMbJqC9uUf8zmnXQjt5BeAlLUWa7Ayz7ido0RZP8rTKaQ/exec',
-  pushTrackingAmazon:  'https://script.google.com/macros/s/AKfycbwFjD4kBkmWO_PttDiIazBW-21ifqlLVLU-XfR8DshhjSoGmIwY-w1CvZNkAljdgmyxTg/exec',
+  // Tracking — AllOrders ingest endpoint, routed by action param
+  pushTrackingEbay:    'https://script.google.com/macros/s/AKfycbwnbc5LGqTbWV34hR-YIWAtJhSs6ggj0rIKVHu9rvBDwHRiUl-lbqjRD6Fuoo_6DC4oRg/exec?action=pushEbayTracking',
+  pushTrackingAmazon:  'https://script.google.com/macros/s/AKfycbwnbc5LGqTbWV34hR-YIWAtJhSs6ggj0rIKVHu9rvBDwHRiUl-lbqjRD6Fuoo_6DC4oRg/exec?action=pushAmazonTracking',
 
-  // Catalogue
-  ebayUpdatePrice:     'https://script.google.com/macros/s/AKfycbxjwK_JqZ8b2jAuEh45LqecIEbW3sf-0yh2tAg0KawUnjxCeKsx2IkTpdAOdkT2Sypx/exec',
-  ebayUpdateStock:     'https://script.google.com/macros/s/AKfycbxtTmfX02hXKlAnGu_U5YZs3GlPcJqdmdPMc2oW_Cdhs0al1Ze7WlweKKPHBpqMHYiu/exec',
+  // Catalogue — Main System endpoint, routed by action param
+  ebayUpdatePrice:     'https://script.google.com/macros/s/AKfycbwV-9fept5iITOqZabfug2i2D2lfi810RfwcyHFTLSm1E2xn2iuPxnwj_KK_Q3ljKc/exec?action=price',
+  ebayUpdateStock:     'https://script.google.com/macros/s/AKfycbwV-9fept5iITOqZabfug2i2D2lfi810RfwcyHFTLSm1E2xn2iuPxnwj_KK_Q3ljKc/exec?action=stock',
 
-  // Suppliers
-  rubiesSync: 'https://script.google.com/macros/s/AKfycbwgZyc4--EUhezKK2tlsBXGBTrx_qhsBHA0nV78q4nA2v_RrAcOPtHoaODPJUwf2J8u/exec',
+  // Suppliers — Main System endpoint, routed by action param
+  rubiesSync:          'https://script.google.com/macros/s/AKfycbwV-9fept5iITOqZabfug2i2D2lfi810RfwcyHFTLSm1E2xn2iuPxnwj_KK_Q3ljKc/exec?action=rubies',
 }
 
 // Default fee rates (can be overridden in margin calc UI)
