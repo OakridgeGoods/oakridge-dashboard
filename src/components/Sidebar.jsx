@@ -7,6 +7,7 @@ const NAV = [
   { section: 'Tools' },
   { id: 'feeds',     label: 'Feeds & Scripts',  icon: '⚡', badge: null },
   { id: 'margins',   label: 'Margin Calc',      icon: '🧮', badge: null },
+  { id: 'logs',      label: 'Script Logs',      icon: '📋', badge: null },
   { section: 'Coming Soon' },
   { id: 'reports',   label: 'Reports',          icon: '📊', badge: null, soon: true },
   { id: 'suppliers', label: 'Suppliers',        icon: '🏭', badge: null, soon: true },
