@@ -2,15 +2,16 @@ import { useState } from 'react'
 
 const NAV = [
   { section: 'Operations' },
-  { id: 'orders',    label: 'Orders',          icon: '📦', badge: null },
-  { id: 'catalogue', label: 'Catalogue',        icon: '🗂️', badge: null },
+  { id: 'orders',     label: 'Orders',              icon: '📦', badge: null },
+  { id: 'catalogue',  label: 'Catalogue',            icon: '🗂️', badge: null },
   { section: 'Tools' },
-  { id: 'feeds',     label: 'Feeds & Scripts',  icon: '⚡', badge: null },
-  { id: 'margins',   label: 'Margin Calc',      icon: '🧮', badge: null },
-  { id: 'logs',      label: 'Script Logs',      icon: '📋', badge: null },
+  { id: 'feeds',      label: 'Feeds & Scripts',      icon: '⚡', badge: null },
+  { id: 'margins',    label: 'Margin Calc',           icon: '🧮', badge: null },
+  { id: 'logs',       label: 'Script Logs',           icon: '📋', badge: null },
+  { id: 'competitor', label: 'Competitor Pricing',    icon: '🔍', badge: null },
   { section: 'Coming Soon' },
-  { id: 'reports',   label: 'Reports',          icon: '📊', badge: null, soon: true },
-  { id: 'suppliers', label: 'Suppliers',        icon: '🏭', badge: null, soon: true },
+  { id: 'reports',    label: 'Reports',               icon: '📊', badge: null, soon: true },
+  { id: 'suppliers',  label: 'Suppliers',             icon: '🏭', badge: null, soon: true },
 ]
 
 export default function Sidebar({ page, setPage, orderCount }) {
