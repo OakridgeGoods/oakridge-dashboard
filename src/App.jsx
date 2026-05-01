@@ -8,8 +8,6 @@ import FeedsPage from './pages/Feeds'
 import MarginsPage from './pages/Margins'
 import LogsPage from './pages/Logs'
 
-// Google OAuth client ID — replace with yours from Google Cloud Console
-// Scopes needed: https://www.googleapis.com/auth/spreadsheets
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID_HERE'
 const SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 
@@ -20,7 +18,6 @@ export default function App() {
   const [orderCount, setOrderCount] = useState(0)
 
   useEffect(() => {
-    // Load Google Identity Services
     const script = document.createElement('script')
     script.src = 'https://accounts.google.com/gsi/client'
     script.async = true
@@ -35,7 +32,6 @@ export default function App() {
         if (resp.error) { console.error(resp); return }
         setToken(resp.access_token)
         setTokenState(resp.access_token)
-        // Get basic user info
         fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
           headers: { Authorization: `Bearer ${resp.access_token}` }
         }).then(r => r.json()).then(info => setUser(info))
@@ -59,7 +55,6 @@ export default function App() {
       <Sidebar page={page} setPage={setPage} orderCount={orderCount} />
 
       <div style={{ marginLeft: 'var(--sidebar-w)', flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {/* Top bar */}
         <div style={{
           height: 'var(--topbar-h)',
           background: 'var(--surface)',
@@ -90,11 +85,10 @@ export default function App() {
           }}>Sign out</button>
         </div>
 
-        {/* Page content */}
         <main style={{ flex: 1, padding: '24px 28px', overflowY: 'auto' }}>
           {page === 'orders'    && <OrdersPage    token={token} />}
           {page === 'catalogue' && <CataloguePage token={token} />}
-          {page === 'feeds'     && <FeedsPage />}
+          {page === 'feeds'     && <FeedsPage     token={token} />}
           {page === 'margins'   && <MarginsPage />}
           {page === 'logs'      && <LogsPage      token={token} />}
         </main>
