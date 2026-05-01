@@ -33,24 +33,28 @@ const COMMISSION_OPTIONS = {
 }
 
 function calcSingle({ cost, margin, ads, shippingCost, shippingCharge, feeRate }) {
-  // totalCost = what you pay (product cost + ad spend + shipping cost to send)
   const adsAmt     = cost * (ads / 100)
   const totalCost  = cost + adsAmt + shippingCost
 
-  // Sell price logic:
-  // If shipping charge > 0, customer pays it separately — it doesn't affect your sell price margin calc
-  // Your sell price needs to cover: totalCost + margin + platform fee + GST
-  // sellEx = totalCost / (1 - margin% - feeRate)
   const sellEx     = totalCost / (1 - margin / 100 - feeRate)
   const sellInc    = sellEx * (1 + FEES.gst)
   const feeAmt     = sellEx * feeRate
   const gstAmt     = sellEx * FEES.gst
   const marginAmt  = sellEx * (margin / 100)
   const breakeven  = totalCost / (1 - feeRate - FEES.gst / (1 + FEES.gst))
-  // If charging separately for shipping, that's extra revenue on top
-  const netRevenue = marginAmt + shippingCharge
 
-  return { adsAmt, totalCost, sellEx, sellInc, feeAmt, gstAmt, marginAmt, breakeven, netRevenue }
+  // When customer pays shipping, effective margin changes:
+  // Platform fee also applies to shipping revenue (eBay/Amazon charge on shipping too)
+  const shippingFeeAmt     = shippingCharge * feeRate
+  const shippingRevNet     = shippingCharge - shippingFeeAmt
+  const effectiveMarginAmt = marginAmt + shippingRevNet
+  const effectiveMarginPct = shippingCharge > 0
+    ? (effectiveMarginAmt / (sellEx + shippingCharge) * 100)
+    : margin
+  // netRevenue kept for backwards compat with breakdown display
+  const netRevenue = effectiveMarginAmt
+
+  return { adsAmt, totalCost, sellEx, sellInc, feeAmt, gstAmt, marginAmt, breakeven, netRevenue, effectiveMarginAmt, effectiveMarginPct }
 }
 
 export default function MarginsPage() {
@@ -62,11 +66,11 @@ export default function MarginsPage() {
 
   // Shipping
   const [shippingClass, setShippingClass]     = useState(SHIPPING_CLASSES[0])
-  const [variableCost, setVariableCost]       = useState('')   // for Variable class
-  const [shippingCharge, setShippingCharge]   = useState('')   // what customer pays
+  const [variableCost, setVariableCost]       = useState('')
+  const [shippingCharge, setShippingCharge]   = useState('')
 
   // Commission
-  const [commissionMode, setCommissionMode]   = useState('standard') // 'standard' | 'custom'
+  const [commissionMode, setCommissionMode]   = useState('standard')
   const [customRate, setCustomRate]           = useState('')
 
   // Bulk
@@ -78,8 +82,8 @@ export default function MarginsPage() {
     ? (parseFloat(customRate) || 0) / 100
     : FEES[platform]
 
-  const costNum       = parseFloat(cost) || 0
-  const shippingCost  = shippingClass.variable ? (parseFloat(variableCost) || 0) : shippingClass.cost
+  const costNum           = parseFloat(cost) || 0
+  const shippingCost      = shippingClass.variable ? (parseFloat(variableCost) || 0) : shippingClass.cost
   const shippingChargeNum = parseFloat(shippingCharge) || 0
 
   const calc = calcSingle({ cost: costNum, margin, ads, shippingCost, shippingCharge: shippingChargeNum, feeRate })
@@ -118,7 +122,7 @@ export default function MarginsPage() {
   }
 
   function calcRow(r) {
-    const sc = r.shipping.variable ? (parseFloat(r.variableCost) || 0) : r.shipping.cost
+    const sc     = r.shipping.variable ? (parseFloat(r.variableCost) || 0) : r.shipping.cost
     const charge = parseFloat(r.shippingCharge) || 0
     return calcSingle({ cost: r.cost, margin: r.margin, ads, shippingCost: sc, shippingCharge: charge, feeRate })
   }
@@ -127,22 +131,23 @@ export default function MarginsPage() {
     const headers = [
       'SKU', 'Cost (ex GST)', 'Ad Spend %',
       'Shipping Class', 'Shipping Cost', 'Shipping Charge (customer)',
-      `Sell Price (inc GST) - ${platform}`, 'Platform Fee', 'Margin %', 'Margin $', 'Net Revenue', 'Break-even'
+      `Sell Price (inc GST) - ${platform}`, 'Platform Fee', 'Target Margin %', 'Effective Margin $', 'Effective Margin %', 'Break-even'
     ]
     const rows = bulkRows.map(r => {
       const c  = calcRow(r)
       const sc = r.shipping.variable ? (parseFloat(r.variableCost) || 0) : r.shipping.cost
+      const charge = parseFloat(r.shippingCharge) || 0
       return [
         r.sku, r.cost.toFixed(2), ads,
         r.shipping.code || 'None',
         sc.toFixed(2),
-        (parseFloat(r.shippingCharge) || 0).toFixed(2),
-        isFinite(c.sellInc)    ? c.sellInc.toFixed(2)    : '',
-        isFinite(c.feeAmt)     ? c.feeAmt.toFixed(2)     : '',
+        charge.toFixed(2),
+        isFinite(c.sellInc)              ? c.sellInc.toFixed(2)              : '',
+        isFinite(c.feeAmt)               ? c.feeAmt.toFixed(2)               : '',
         r.margin,
-        isFinite(c.marginAmt)  ? c.marginAmt.toFixed(2)  : '',
-        isFinite(c.netRevenue) ? c.netRevenue.toFixed(2) : '',
-        isFinite(c.breakeven)  ? c.breakeven.toFixed(2)  : '',
+        isFinite(c.effectiveMarginAmt)   ? c.effectiveMarginAmt.toFixed(2)   : '',
+        isFinite(c.effectiveMarginPct)   ? c.effectiveMarginPct.toFixed(1)   : '',
+        isFinite(c.breakeven)            ? c.breakeven.toFixed(2)            : '',
       ].join(',')
     })
     const csv = [headers.join(','), ...rows].join('\n')
@@ -151,6 +156,9 @@ export default function MarginsPage() {
     a.download = `margin-calc-${platform}-${new Date().toISOString().slice(0, 10)}.csv`
     a.click()
   }
+
+  const displayMarginAmt = shippingChargeNum > 0 ? calc.effectiveMarginAmt : calc.marginAmt
+  const displayMarginPct = shippingChargeNum > 0 ? calc.effectiveMarginPct : margin
 
   return (
     <div style={{ maxWidth: 960 }}>
@@ -327,7 +335,7 @@ export default function MarginsPage() {
                 </div>
                 {shippingChargeNum > 0 && (
                   <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 4 }}>
-                    Shipping revenue added to net. Not included in sell price calc.
+                    Platform fee ({fmtPct(feeRate * 100)}) also applies to shipping revenue. Margin stats updated below.
                   </div>
                 )}
               </div>
@@ -345,9 +353,11 @@ export default function MarginsPage() {
                 (ads > 0 || shippingCost > 0) ? ['Total effective cost', fmt(calc.totalCost)] : null,
                 ['Platform fee',             fmt(calc.feeAmt)],
                 ['GST component',            fmt(calc.gstAmt)],
-                ['Your margin $',            fmt(calc.marginAmt)],
-                shippingChargeNum > 0 ? ['Shipping charge (revenue)', fmt(shippingChargeNum)]  : null,
-                shippingChargeNum > 0 ? ['Net revenue',              fmt(calc.netRevenue)]     : null,
+                ['Product margin $',         fmt(calc.marginAmt)],
+                shippingChargeNum > 0 ? ['Shipping charge (revenue)', fmt(shippingChargeNum)]                : null,
+                shippingChargeNum > 0 ? ['Fee on shipping charge',    fmt(shippingChargeNum * feeRate)]      : null,
+                shippingChargeNum > 0 ? ['Net shipping revenue',      fmt(shippingChargeNum * (1 - feeRate))] : null,
+                shippingChargeNum > 0 ? ['Effective margin $',        fmt(calc.effectiveMarginAmt)]          : null,
                 ['Break-even price',         fmt(calc.breakeven)],
               ].filter(Boolean).map(([label, val]) => (
                 <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '0.5px solid var(--border)', fontSize: 13 }}>
@@ -373,11 +383,18 @@ export default function MarginsPage() {
               )}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              <StatCard label="Margin $"      value={fmt(calc.marginAmt)} />
-              <StatCard label="Margin %"      value={fmtPct(margin)} />
+              <StatCard
+                label="Margin $"
+                value={fmt(displayMarginAmt)}
+                sub={shippingChargeNum > 0 ? 'effective (incl. shipping)' : undefined}
+              />
+              <StatCard
+                label="Margin %"
+                value={fmtPct(displayMarginPct)}
+                sub={shippingChargeNum > 0 ? 'effective' : undefined}
+              />
               <StatCard label="Platform fee"  value={fmt(calc.feeAmt)} />
               <StatCard label="Break-even"    value={fmt(calc.breakeven)} />
-              {shippingChargeNum > 0 && <StatCard label="Net revenue" value={fmt(calc.netRevenue)} />}
             </div>
           </div>
         </div>
@@ -419,7 +436,7 @@ export default function MarginsPage() {
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
                   <thead>
                     <tr>
-                      {['SKU', 'Cost', 'Margin %', 'Ship class', 'Ship cost $', 'Ship charge $', 'Sell (inc GST)', 'Fee', 'Margin $', 'Net rev.', 'Break-even'].map(h => (
+                      {['SKU', 'Cost', 'Target %', 'Ship class', 'Ship cost $', 'Ship charge $', 'Sell (inc GST)', 'Fee', 'Eff. Margin $', 'Eff. Margin %', 'Break-even'].map(h => (
                         <th key={h} style={{ padding: '8px 10px', textAlign: 'left', fontSize: 10.5, color: 'var(--text-3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '0.5px solid var(--border)', whiteSpace: 'nowrap' }}>{h}</th>
                       ))}
                     </tr>
@@ -428,6 +445,7 @@ export default function MarginsPage() {
                     {bulkRows.map((r, i) => {
                       const c  = calcRow(r)
                       const sc = r.shipping.variable ? (parseFloat(r.variableCost) || 0) : r.shipping.cost
+                      const charge = parseFloat(r.shippingCharge) || 0
                       return (
                         <tr key={i} style={{ borderBottom: '0.5px solid var(--border)' }}>
                           <td style={{ padding: '6px 10px', fontFamily: 'var(--font-mono)', fontSize: 11 }}>{r.sku}</td>
@@ -468,8 +486,8 @@ export default function MarginsPage() {
                           </td>
                           <td style={{ padding: '6px 10px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--oak-mid)' }}>{isFinite(c.sellInc) ? `$${c.sellInc.toFixed(2)}` : '—'}</td>
                           <td style={{ padding: '6px 10px', fontFamily: 'var(--font-mono)', color: 'var(--text-3)' }}>{isFinite(c.feeAmt) ? `$${c.feeAmt.toFixed(2)}` : '—'}</td>
-                          <td style={{ padding: '6px 10px', fontFamily: 'var(--font-mono)' }}>{isFinite(c.marginAmt) ? `$${c.marginAmt.toFixed(2)}` : '—'}</td>
-                          <td style={{ padding: '6px 10px', fontFamily: 'var(--font-mono)' }}>{isFinite(c.netRevenue) ? `$${c.netRevenue.toFixed(2)}` : '—'}</td>
+                          <td style={{ padding: '6px 10px', fontFamily: 'var(--font-mono)', color: charge > 0 ? 'var(--oak-mid)' : 'inherit' }}>{isFinite(c.effectiveMarginAmt) ? `$${c.effectiveMarginAmt.toFixed(2)}` : '—'}</td>
+                          <td style={{ padding: '6px 10px', fontFamily: 'var(--font-mono)', color: charge > 0 ? 'var(--oak-mid)' : 'inherit' }}>{isFinite(c.effectiveMarginPct) ? `${c.effectiveMarginPct.toFixed(1)}%` : '—'}</td>
                           <td style={{ padding: '6px 10px', fontFamily: 'var(--font-mono)', color: 'var(--text-3)' }}>{isFinite(c.breakeven) ? `$${c.breakeven.toFixed(2)}` : '—'}</td>
                         </tr>
                       )
@@ -478,7 +496,7 @@ export default function MarginsPage() {
                 </table>
               </div>
               <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 8 }}>
-                Export CSV → XLOOKUP into Masterfeed by SKU to update sell prices.
+                Effective margin reflects shipping charge revenue after platform fees. Export CSV → XLOOKUP into Masterfeed by SKU.
               </div>
             </div>
           )}
