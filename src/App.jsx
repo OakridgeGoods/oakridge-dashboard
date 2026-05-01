@@ -34,7 +34,7 @@ export default function App() {
         setToken(resp.access_token)
         setTokenState(resp.access_token)
         fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-          headers: { Authorization:  }
+          headers: { Authorization: 'Bearer ' + resp.access_token },
         }).then(r => r.json()).then(info => setUser(info))
       },
     })
